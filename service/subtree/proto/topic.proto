@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "./;proto";
+
+message packet {
+  bytes Body = 1;
+  string ID = 2;
+  uint64 timestamp = 3;
+  packet next = 4;
+  string topic = 5;
+}
+message queue{
+  packet first = 1;
+  packet last = 2;
+  int32  length = 3;
+
+}
+message Client{
+  // @inject_tag: json:"id"
+  string  ID = 1;
+  // @inject_tag: json:"subTopics"
+  map<string, int32> SubTopics = 2;
+  // @inject_tag: json:"meta"
+  map<string, string>  Meta = 3;
+  // @inject_tag: json:"queue"
+  queue Queue = 5;
+  // @inject_tag: json:"aliveTime"
+  int64 AliveTime = 6;
+
+  string nodeIP = 7;
+
+}
+
+message TopicClientsID{
+  map<string, int64> Clients = 1;
+}
+
+message TopicSub{
+  TreeNode tree = 1;
+  HashSubTopic hash = 2;
+  map<string, Client> Clients = 3;
+}
+message TreeNode{
+  string TopicSection = 1; // topic section
+  string Topic = 2; // full topic
+  map<string, Client> Clients = 3; // sub clients, key is clientID
+  map<string, TreeNode> ChildNode = 4; // child tree
+}
+
+message HashSubTopic{
+  // @deprecated
+  map<string, Client> Clients = 1; // 此字段废弃
+  map<string, TopicClientsID> HashSubTopic = 2;
+}
